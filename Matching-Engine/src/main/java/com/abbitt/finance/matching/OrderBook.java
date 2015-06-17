@@ -1,7 +1,9 @@
 package com.abbitt.finance.matching;
 
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.Map;
+import java.util.TreeMap;
 
 class OrderBook {
 
@@ -42,8 +44,8 @@ class OrderBook {
         return trades.containsKey(price) && trades.get(price) > 0;
     }
 
-    double getInsidePrice() {
-        return trades.keySet().iterator().hasNext() ? trades.keySet().iterator().next() : 0;
+    int getInsidePrice() {
+        return trades.keySet().iterator().hasNext() ? trades.keySet().iterator().next() : -1;
     }
 
     @Override

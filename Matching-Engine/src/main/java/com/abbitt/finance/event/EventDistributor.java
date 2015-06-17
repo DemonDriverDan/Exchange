@@ -58,5 +58,12 @@ public class EventDistributor {
 
     public void handleOrderPosted(OrderCreated event) {
         LOG.info("Order posted. {}", event.toString());
+
+        OrderTraded orderTraded = matchingEngine.addLiquidity(event);
+        if (orderTraded == null) {
+            tcpWriter.orderRejected(new OrderRejected(event.getClientId(), "An internal error occurred"));
+            return;
+        }
+        tcpWriter.orderTraded(orderTraded);
     }
 }

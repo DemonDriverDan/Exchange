@@ -29,11 +29,6 @@ public class MatchingEngineImpl implements MatchingEngine {
     }
 
     @Override
-    public OrderTraded addLiquidity(OrderCreated event) {
-        return null;
-    }
-
-    @Override
     public OrderTraded takeLiquidity(OrderCreated event) throws NoQuantityException {
         long quantity = -1;
 
@@ -58,5 +53,16 @@ public class MatchingEngineImpl implements MatchingEngine {
         } else {
             throw new NoQuantityException(event.getPrice());
         }
+    }
+
+    @Override
+    public OrderTraded addLiquidity(OrderCreated event) {
+        if (event.getSide() == Side.BUY) {
+            bidBook.addQuantity(event.getPrice(), event.getQuantity());
+        } else if (event.getSide() == Side.SELL) {
+            askBook.addQuantity(event.getPrice(), event.getQuantity());
+        }
+
+        return new OrderTraded(event.getClientId(), event.getPrice(), event.getQuantity(), event.getSide());
     }
 }
