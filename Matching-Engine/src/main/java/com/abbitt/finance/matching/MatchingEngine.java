@@ -1,13 +1,16 @@
 package com.abbitt.finance.matching;
 
 
-import com.abbitt.finance.event.TradeEvent;
+import com.abbitt.finance.event.OrderCreated;
+import com.abbitt.finance.event.OrderTraded;
 
 public interface MatchingEngine {
-
-    void handleTradeCreated(TradeEvent tradeEvent);
 
     OrderBook getBidBook();
 
     OrderBook getAskBook();
+
+    OrderTraded takeLiquidity(OrderCreated event) throws NoQuantityException;
+
+    OrderTraded addLiquidity(OrderCreated event);
 }
