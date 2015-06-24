@@ -3,7 +3,11 @@ package com.abbitt.finance.event;
 
 import com.abbitt.finance.Side;
 
-public class OrderTraded extends Event {
+import java.nio.ByteBuffer;
+
+public class OrderTraded extends Command {
+
+    private static final int MESSAGE_ID = 5;
 
     private final int price;
     private final long quantity;
@@ -26,6 +30,11 @@ public class OrderTraded extends Event {
 
     public Side getSide() {
         return side;
+    }
+
+    @Override
+    public void writeToBuffer(ByteBuffer buffer) {
+
     }
 
     @Override

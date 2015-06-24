@@ -4,16 +4,18 @@ package com.abbitt.finance.event;
 import com.abbitt.finance.client.ClientRepository;
 import com.abbitt.finance.connectivity.TcpWriter;
 import com.abbitt.finance.matching.MatchingEngine;
+import com.google.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class EventDistributor {
     private static final Logger LOG = LoggerFactory.getLogger(EventDistributor.class);
 
-    private final ClientRepository clientRepository;
     private final TcpWriter tcpWriter;
+    private final ClientRepository clientRepository;
     private final MatchingEngine matchingEngine;
 
+    @Inject
     public EventDistributor(TcpWriter tcpWriter, MatchingEngine matchingEngine, ClientRepository clientRepository) {
         this.tcpWriter = tcpWriter;
         this.matchingEngine = matchingEngine;

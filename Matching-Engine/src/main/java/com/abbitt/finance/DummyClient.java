@@ -18,6 +18,7 @@ public class DummyClient {
 
         ByteBuffer buffer = ByteBuffer.allocate(1024);
         buffer.putInt(1);
+        buffer.putInt(5);
         buffer.flip();
         client.write(buffer);
         buffer.clear();

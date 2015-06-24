@@ -1,7 +1,11 @@
 package com.abbitt.finance.event;
 
 
-public class ClientRegistrationFailed extends Event {
+import java.nio.ByteBuffer;
+
+public class ClientRegistrationFailed extends Command {
+
+    private static final int MESSAGE_ID = 3;
 
     private final String reason;
 
@@ -12,5 +16,10 @@ public class ClientRegistrationFailed extends Event {
 
     public String getReason() {
         return reason;
+    }
+
+    @Override
+    public void writeToBuffer(ByteBuffer buffer) {
+
     }
 }

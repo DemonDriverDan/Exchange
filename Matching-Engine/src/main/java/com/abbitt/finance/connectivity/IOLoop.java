@@ -1,11 +1,13 @@
 package com.abbitt.finance.connectivity;
 
 
+import com.abbitt.finance.event.*;
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
@@ -15,28 +17,20 @@ import java.nio.channels.SocketChannel;
 import java.nio.channels.spi.SelectorProvider;
 import java.util.Iterator;
 
-public class TcpReadWriter {
-    private static final Logger LOG = LoggerFactory.getLogger(TcpReadWriter.class);
-
+public class IOLoop {
+    private static final Logger LOG = LoggerFactory.getLogger(IOLoop.class);
     private static final int BUFFER_SIZE = 1024;
-    private final static int DEFAULT_PORT = 9090;
 
-    // The buffer into which we'll read data when it's available
-    private ByteBuffer readBuffer = ByteBuffer.allocate(BUFFER_SIZE);
-
-    private InetAddress hostAddress = null;
-
+    private final EventDistributor distributor;
     private int port;
     private Selector selector;
+    private ByteBuffer readBuffer = ByteBuffer.allocate(BUFFER_SIZE);
+    private ByteBuffer writeBuffer = ByteBuffer.allocate(BUFFER_SIZE);
+    private SelectionKey currentKey;
 
-    private long loopTime;
-    private long numMessages = 0;
-
-    public TcpReadWriter() throws IOException {
-        this(DEFAULT_PORT);
-    }
-
-    public TcpReadWriter(int port) throws IOException {
+    @Inject
+    public IOLoop(EventDistributor distributor, @Named("port") int port) throws IOException {
+        this.distributor = distributor;
         this.port = port;
         selector = initSelector();
     }
@@ -47,7 +41,7 @@ public class TcpReadWriter {
         ServerSocketChannel serverChannel = ServerSocketChannel.open();
         serverChannel.configureBlocking(false);
 
-        InetSocketAddress isa = new InetSocketAddress(hostAddress, port);
+        InetSocketAddress isa = new InetSocketAddress(port);
         serverChannel.socket().bind(isa);
         serverChannel.register(socketSelector, SelectionKey.OP_ACCEPT);
         return socketSelector;
@@ -67,7 +61,6 @@ public class TcpReadWriter {
                         continue;
                     }
 
-                    // Check what event is available and deal with it
                     if (key.isAcceptable()) {
                         accept(key);
                     } else if (key.isReadable()) {
@@ -78,8 +71,9 @@ public class TcpReadWriter {
                 }
 
             } catch (Exception e) {
+                // This should never be hit, exceptions should be caught downstream and the correct error message sent back
                 e.printStackTrace();
-                System.exit(1);
+                readBuffer.clear();
             }
         }
     }
@@ -90,59 +84,50 @@ public class TcpReadWriter {
         SocketChannel socketChannel = serverSocketChannel.accept();
         socketChannel.configureBlocking(false);
 
-        SelectionKey newKey = socketChannel.register(selector, SelectionKey.OP_READ);
-
+        socketChannel.register(selector, SelectionKey.OP_READ);
         LOG.debug("Client is connected");
     }
 
     private void read(SelectionKey key) throws IOException {
         SocketChannel socketChannel = (SocketChannel) key.channel();
+        currentKey = key;
 
-        // Clear out our read buffer so it's ready for new data
         readBuffer.clear();
-
-        // Attempt to read off the channel
-        int numRead;
-        try {
-            numRead = socketChannel.read(readBuffer);
-            int s = readBuffer.getInt();
-            LOG.info("Num read: {}", numRead);
-            LOG.info("Int: {}", s);
-        } catch (IOException e) {
-            key.cancel();
-            socketChannel.close();
-
-            LOG.error("Forceful shutdown");
-            return;
+        int read = socketChannel.read(readBuffer);
+        if (read > 0) {
+            readBuffer.flip();
+            parseMessage();
         }
+    }
 
-        if (numRead == -1) {
-            LOG.info("Graceful shutdown");
-            key.channel().close();
-            key.cancel();
-
-            return;
-        }
-
-        socketChannel.register(selector, SelectionKey.OP_WRITE);
-
-        numMessages++;
-        if (numMessages%100000 == 0) {
-            long elapsed = System.currentTimeMillis() - loopTime;
-            loopTime = System.currentTimeMillis();
-            LOG.debug("" + elapsed);
+    private void parseMessage() {
+        int messageType = readBuffer.getInt();
+        LOG.trace("Message type: {}", messageType);
+        if (messageType == ClientRegisterRequested.MESSAGE_ID) {
+            ClientRegisterRequested event = new ClientRegisterRequested(readBuffer);
+            distributor.handleClientRegisterRequested(event);
+        } else if (messageType == OrderCreated.MESSAGE_ID) {
+            OrderCreated event = new OrderCreated(readBuffer);
+            distributor.handleOrderCreated(event);
+        } else if (messageType == OrderPosted.MESSAGE_ID) {
+            OrderPosted event = new OrderPosted(readBuffer);
+            distributor.handleOrderPosted(event);
         }
     }
 
     private void write(SelectionKey key) throws IOException {
         SocketChannel socketChannel = (SocketChannel) key.channel();
-        ByteBuffer dummyResponse = ByteBuffer.wrap("ok".getBytes("UTF-8"));
 
-        socketChannel.write(dummyResponse);
-        if (dummyResponse.remaining() > 0) {
+        socketChannel.write(writeBuffer);
+        if (writeBuffer.remaining() > 0) {
             LOG.error("Filled UP");
         }
 
         key.interestOps(SelectionKey.OP_READ);
+    }
+
+    void writeCommand(Command command) {
+        command.writeToBuffer(writeBuffer);
+        currentKey.interestOps(SelectionKey.OP_WRITE);
     }
 }
