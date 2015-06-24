@@ -15,11 +15,11 @@ public class TcpConnection {
     private static final int BUFFER_SIZE = 1024;
 
     private final SelectionKey key;
-    private final EventDistributorI distributor;
+    private final EventDistributor distributor;
     private ByteBuffer inBuffer = ByteBuffer.allocate(BUFFER_SIZE);
     private ByteBuffer outBuffer = ByteBuffer.allocate(BUFFER_SIZE);
 
-    public TcpConnection(SelectionKey key, EventDistributorI distributor) {
+    public TcpConnection(SelectionKey key, EventDistributor distributor) {
         this.key = key;
         this.distributor = distributor;
         key.attach(this);

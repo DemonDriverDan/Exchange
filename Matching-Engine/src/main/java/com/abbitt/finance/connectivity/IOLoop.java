@@ -1,7 +1,7 @@
 package com.abbitt.finance.connectivity;
 
 
-import com.abbitt.finance.event.EventDistributorI;
+import com.abbitt.finance.event.EventDistributor;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import org.slf4j.Logger;
@@ -19,12 +19,12 @@ import java.util.Iterator;
 public class IOLoop {
     private static final Logger LOG = LoggerFactory.getLogger(IOLoop.class);
 
-    private final EventDistributorI distributor;
+    private final EventDistributor distributor;
     private int port;
     private Selector selector;
 
     @Inject
-    public IOLoop(EventDistributorI distributor, @Named("port") int port) throws IOException {
+    public IOLoop(EventDistributor distributor, @Named("port") int port) throws IOException {
         this.distributor = distributor;
         this.port = port;
         selector = initSelector();

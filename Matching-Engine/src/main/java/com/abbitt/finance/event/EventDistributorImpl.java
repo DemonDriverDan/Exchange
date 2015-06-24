@@ -8,7 +8,7 @@ import com.google.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class EventDistributorImpl implements EventDistributorI {
+public class EventDistributorImpl implements EventDistributor {
     private static final Logger LOG = LoggerFactory.getLogger(EventDistributorImpl.class);
 
     private final ClientRepository clientRepository;
