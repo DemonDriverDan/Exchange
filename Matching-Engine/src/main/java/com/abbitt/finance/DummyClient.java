@@ -23,6 +23,14 @@ public class DummyClient {
         client.write(buffer);
         buffer.clear();
 
+        System.out.println("Waiting for response...");
+        int read = client.read(buffer);
+        if (read > 0) {
+            buffer.flip();
+            int messageType = buffer.getInt();
+            System.out.println("Message received, message type: " + messageType);
+        }
+
         client.close();
     }
 

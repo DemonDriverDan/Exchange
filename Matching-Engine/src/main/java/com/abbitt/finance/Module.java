@@ -2,9 +2,8 @@ package com.abbitt.finance;
 
 import com.abbitt.finance.client.ClientRepository;
 import com.abbitt.finance.connectivity.IOLoop;
-import com.abbitt.finance.connectivity.TcpWriter;
-import com.abbitt.finance.connectivity.TcpWriterImpl;
-import com.abbitt.finance.event.EventDistributor;
+import com.abbitt.finance.event.EventDistributorI;
+import com.abbitt.finance.event.EventDistributorImpl;
 import com.abbitt.finance.matching.MatchingEngine;
 import com.abbitt.finance.matching.MatchingEngineImpl;
 import com.google.inject.AbstractModule;
@@ -16,9 +15,8 @@ public class Module extends AbstractModule {
     @Override
     protected void configure() {
         bind(MatchingEngine.class).to(MatchingEngineImpl.class);
-        bind(TcpWriter.class).to(TcpWriterImpl.class);
+        bind(EventDistributorI.class).to(EventDistributorImpl.class);
 
-        bind(EventDistributor.class).asEagerSingleton();
         bind(IOLoop.class).asEagerSingleton();
         bind(ClientRepository.class).asEagerSingleton();
 

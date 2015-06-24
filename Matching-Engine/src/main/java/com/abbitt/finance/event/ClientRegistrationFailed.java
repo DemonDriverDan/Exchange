@@ -20,6 +20,13 @@ public class ClientRegistrationFailed extends Command {
 
     @Override
     public void writeToBuffer(ByteBuffer buffer) {
-
+        buffer.putInt(MESSAGE_ID);
+        buffer.putInt(getClientId());
+        buffer.putInt(reason.length());
+        buffer.put(reason.getBytes());
+        // To read, do buffer.getInt() for length then
+        // byte[] bytes = new byte[length]
+        // buffer.get(bytes)
+        // String reason = new String(bytes)
     }
 }

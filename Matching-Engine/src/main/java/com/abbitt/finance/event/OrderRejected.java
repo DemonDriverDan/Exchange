@@ -20,6 +20,9 @@ public class OrderRejected extends Command {
 
     @Override
     public void writeToBuffer(ByteBuffer buffer) {
-
+        buffer.putInt(MESSAGE_ID);
+        buffer.putInt(getClientId());
+        buffer.putInt(reason.length());
+        buffer.put(reason.getBytes());
     }
 }

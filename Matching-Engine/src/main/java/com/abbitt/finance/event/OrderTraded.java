@@ -34,7 +34,11 @@ public class OrderTraded extends Command {
 
     @Override
     public void writeToBuffer(ByteBuffer buffer) {
-
+        buffer.putInt(MESSAGE_ID);
+        buffer.putInt(getClientId());
+        buffer.putInt(price);
+        buffer.putLong(quantity);
+        buffer.putShort(side.getBinaryVal());
     }
 
     @Override
