@@ -9,5 +9,9 @@ public abstract class Command extends Event {
         super(clientId);
     }
 
+    public Command(ByteBuffer buffer) {
+        super(buffer);
+    }
+
     public abstract void writeToBuffer(ByteBuffer buffer);
 }

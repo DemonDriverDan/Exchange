@@ -22,7 +22,7 @@ public class EventDistributorImpl implements EventDistributor {
 
     @Override
     public void handleClientRegisterRequested(ClientRegisterRequested event, TcpConnection conn) {
-        LOG.info("Client register requested, id: {}", event.getClientId());
+        LOG.info(event.toString());
         boolean result = clientRepository.addClient(event.getClientId());
 
         if (result) {
@@ -37,7 +37,7 @@ public class EventDistributorImpl implements EventDistributor {
 
     @Override
     public void handleOrderCreated(OrderCreated event, TcpConnection conn) {
-        LOG.info("Order created. {}", event.toString());
+        LOG.info(event.toString());
 
         if (!clientRepository.clientRegistered(event.getClientId())) {
             LOG.error("Client {} not registered", event.getClientId());
@@ -60,7 +60,7 @@ public class EventDistributorImpl implements EventDistributor {
 
     @Override
     public void handleOrderPosted(OrderCreated event, TcpConnection conn) {
-        LOG.info("Order posted. {}", event.toString());
+        LOG.info(event.toString());
 
         OrderTraded orderTraded = matchingEngine.addLiquidity(event);
         if (orderTraded == null) {

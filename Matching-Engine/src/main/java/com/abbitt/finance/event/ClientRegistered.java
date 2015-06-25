@@ -10,9 +10,18 @@ public class ClientRegistered extends Command {
         super(clientId);
     }
 
+    public ClientRegistered(ByteBuffer buffer) {
+        super(buffer);
+    }
+
     @Override
     public void writeToBuffer(ByteBuffer buffer) {
         buffer.putInt(MESSAGE_ID);
         buffer.putInt(getClientId());
+    }
+
+    @Override
+    public String toString() {
+        return "ClientRegistered{clientId=" + getClientId() + "}";
     }
 }

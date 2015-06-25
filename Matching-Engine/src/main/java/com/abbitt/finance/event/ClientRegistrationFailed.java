@@ -5,13 +5,21 @@ import java.nio.ByteBuffer;
 
 public class ClientRegistrationFailed extends Command {
 
-    private static final int MESSAGE_ID = 3;
+    public static final int MESSAGE_ID = 3;
 
     private final String reason;
 
     public ClientRegistrationFailed(int clientId, String reason) {
         super(clientId);
         this.reason = reason;
+    }
+
+    public ClientRegistrationFailed(ByteBuffer buffer) {
+        super(buffer);
+        int length = buffer.getInt();
+        byte[] bytes = new byte[length];
+        buffer.get(bytes);
+        reason = new String(bytes);
     }
 
     public String getReason() {
@@ -28,5 +36,13 @@ public class ClientRegistrationFailed extends Command {
         // byte[] bytes = new byte[length]
         // buffer.get(bytes)
         // String reason = new String(bytes)
+    }
+
+    @Override
+    public String toString() {
+        return "ClientRegistrationFailed{" +
+                "clientId=" + getClientId() +
+                ", reason='" + reason + '\'' +
+                '}';
     }
 }

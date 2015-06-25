@@ -41,6 +41,11 @@ public class OrderCreated extends Event {
 
     @Override
     public String toString() {
-        return super.toString() + ", Price: " + price + ", Qty: " + quantity + ", Side: " + side;
+        return "OrderCreated{" +
+                "clientId=" + getClientId() +
+                ", price=" + price +
+                ", quantity=" + quantity +
+                ", side=" + side +
+                '}';
     }
 }

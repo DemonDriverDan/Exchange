@@ -21,6 +21,8 @@ public abstract class Event {
 
     @Override
     public String toString() {
-        return "Client Id: " + clientId;
+        return "Event{" +
+                "clientId=" + clientId +
+                '}';
     }
 }

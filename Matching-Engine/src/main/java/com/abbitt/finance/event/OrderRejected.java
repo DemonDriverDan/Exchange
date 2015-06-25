@@ -25,4 +25,12 @@ public class OrderRejected extends Command {
         buffer.putInt(reason.length());
         buffer.put(reason.getBytes());
     }
+
+    @Override
+    public String toString() {
+        return "OrderRejected{" +
+                "clientId=" + getClientId() +
+                ", reason='" + reason + '\'' +
+                '}';
+    }
 }

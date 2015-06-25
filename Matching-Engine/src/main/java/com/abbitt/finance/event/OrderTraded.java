@@ -43,6 +43,11 @@ public class OrderTraded extends Command {
 
     @Override
     public String toString() {
-        return super.toString() + ", Price: " + price + ", Qty: " + quantity + ", Side: " + side;
+        return "OrderTraded{" +
+                "clientId=" + getClientId() +
+                ", price=" + price +
+                ", quantity=" + quantity +
+                ", side=" + side +
+                '}';
     }
 }

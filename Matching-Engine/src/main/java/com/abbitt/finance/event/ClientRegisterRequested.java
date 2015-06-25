@@ -14,4 +14,9 @@ public class ClientRegisterRequested extends Event {
     public ClientRegisterRequested(ByteBuffer buffer) {
         super(buffer);
     }
+
+    @Override
+    public String toString() {
+        return "ClientRegisterRequested{clientId=" + getClientId() + "}";
+    }
 }
