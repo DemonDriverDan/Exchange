@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
@@ -13,6 +14,8 @@ import java.nio.channels.SocketChannel;
 public class TcpConnection {
     private static final Logger LOG = LoggerFactory.getLogger(TcpConnection.class);
     private static final int BUFFER_SIZE = 1024;
+    private static final String MALFORMED_MESSAGE = "Malformed message";
+    private static final String INTERNAL_ERROR = "An internal error occurred";
 
     private final SelectionKey key;
     private final EventDistributor distributor;
@@ -45,7 +48,7 @@ public class TcpConnection {
             LOG.warn(e.getMessage());
             close();
         } catch (Exception e) {
-            LOG.error("An error occured", e);
+            LOG.error("An error occurred", e);
             close();
         }
     }
@@ -54,14 +57,40 @@ public class TcpConnection {
         int messageType = inBuffer.getInt();
         LOG.trace("Message type: {}", messageType);
         if (messageType == ClientRegisterRequested.MESSAGE_ID) {
-            ClientRegisterRequested event = new ClientRegisterRequested(inBuffer);
-            distributor.handleClientRegisterRequested(event, this);
+            try {
+                ClientRegisterRequested event = new ClientRegisterRequested(inBuffer);
+                distributor.handleClientRegisterRequested(event, this);
+            } catch (BufferUnderflowException bufEx) {
+                write(new ClientRegistrationFailed(0, MALFORMED_MESSAGE));
+                LOG.error(MALFORMED_MESSAGE, bufEx);
+            } catch (Exception e) {
+                write(new ClientRegistrationFailed(0, INTERNAL_ERROR));
+                LOG.error("Error occurred parsing client register requested event", e);
+            }
         } else if (messageType == OrderCreated.MESSAGE_ID) {
-            OrderCreated event = new OrderCreated(inBuffer);
-            distributor.handleOrderCreated(event, this);
+            try {
+                OrderCreated event = new OrderCreated(inBuffer);
+                distributor.handleOrderCreated(event, this);
+            } catch (BufferUnderflowException bufEx) {
+                write(new OrderRejected(0, MALFORMED_MESSAGE));
+                LOG.error(MALFORMED_MESSAGE, bufEx);
+            } catch (Exception e) {
+                write(new OrderRejected(0, INTERNAL_ERROR));
+                LOG.error("Error occurred parsing order event", e);
+            }
         } else if (messageType == OrderPosted.MESSAGE_ID) {
-            OrderPosted event = new OrderPosted(inBuffer);
-            distributor.handleOrderPosted(event, this);
+            try {
+                OrderPosted event = new OrderPosted(inBuffer);
+                distributor.handleOrderPosted(event, this);
+            } catch (BufferUnderflowException bufEx) {
+                write(new OrderRejected(0, MALFORMED_MESSAGE));
+                LOG.error(MALFORMED_MESSAGE, bufEx);
+            } catch (Exception e) {
+                write(new OrderRejected(0, INTERNAL_ERROR));
+                LOG.error("Error occurred parsing order posted event", e);
+            }
+        } else {
+            LOG.error("Unknown message type {}", messageType);
         }
         key.interestOps(SelectionKey.OP_WRITE);
     }
