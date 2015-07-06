@@ -16,4 +16,14 @@ public class OrderPosted extends OrderCreated {
     public OrderPosted(ByteBuffer buffer) {
         super(buffer);
     }
+
+    @Override
+    public String toString() {
+        return "OrderPosted{" +
+                "clientId=" + getClientId() +
+                ", price=" + super.getPrice() +
+                ", quantity=" + super.getQuantity() +
+                ", side=" + super.getSide() +
+                '}';
+    }
 }

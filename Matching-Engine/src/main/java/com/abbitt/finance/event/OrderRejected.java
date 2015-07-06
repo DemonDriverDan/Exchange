@@ -5,13 +5,21 @@ import java.nio.ByteBuffer;
 
 public class OrderRejected extends Command {
 
-    private static final int MESSAGE_ID = 6;
+    public static final int MESSAGE_ID = 6;
 
     private final String reason;
 
     public OrderRejected(int clientId, String reason) {
         super(clientId);
         this.reason = reason;
+    }
+
+    public OrderRejected(ByteBuffer buffer) {
+        super(buffer);
+        int length = buffer.getInt();
+        byte[] bytes = new byte[length];
+        buffer.get(bytes);
+        reason = new String(bytes);
     }
 
     public String getReason() {

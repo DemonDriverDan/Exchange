@@ -59,7 +59,7 @@ public class EventDistributorImpl implements EventDistributor {
     }
 
     @Override
-    public void handleOrderPosted(OrderCreated event, TcpConnection conn) {
+    public void handleOrderPosted(OrderPosted event, TcpConnection conn) {
         LOG.info(event.toString());
 
         OrderTraded orderTraded = matchingEngine.addLiquidity(event);

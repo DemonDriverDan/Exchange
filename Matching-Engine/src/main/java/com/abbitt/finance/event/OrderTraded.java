@@ -7,7 +7,7 @@ import java.nio.ByteBuffer;
 
 public class OrderTraded extends Command {
 
-    private static final int MESSAGE_ID = 5;
+    public static final int MESSAGE_ID = 5;
 
     private final int price;
     private final long quantity;
@@ -18,6 +18,13 @@ public class OrderTraded extends Command {
         this.price = price;
         this.quantity = quantity;
         this.side = side;
+    }
+
+    public OrderTraded(ByteBuffer buffer) {
+        super(buffer);
+        this.price = buffer.getInt();
+        this.quantity = buffer.getLong();
+        this.side = Side.getByBinaryVal(buffer.getShort());
     }
 
     public int getPrice() {
